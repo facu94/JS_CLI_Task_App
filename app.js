@@ -1,12 +1,42 @@
-console.log("Aplicación de Tareas");
 const fs = require('fs');
 const consoleArgs = process.argv;
 
-consoleArgs.splice(2);
+let archivoURL = "./tareas.json";
 
-console.log(consoleArgs);
+console.log("Aplicación de Tareas");
 
-// (consoleArgs.length == 0)? 
+consoleArgs.splice(0, 2);
+let opcion = consoleArgs.shift();
+
+
+switch (opcion) {
+    case /-c|crear/i.test(opcion):      
+        crearTarea(consoleArgs);
+        break;
+    case /-d|eliminar/i.test(opcion):
+        borrarTarea(consoleArgs);
+        break;
+    case /-u|cambiarURL/i.test(opcion):
+        cambiarURL(consoleArgs);
+        break;
+    case /-i|import/i.test(opcion):
+        importTarea(consoleArgs);
+        break;
+    case /-l|listar/i.test(opcion):
+        listarTodas(archivoURL, opcion);
+        break;
+    case undefined:
+        listarTodas(archivoURL);
+        break;
+    case /-h|help/i.test(opcion):
+        mostrarAyuda();
+    case /-a|about/i.test(opcion):
+        acercaDe();
+        break;
+    default:
+        opcionDesconocida();
+        break;
+}
 
 function Tarea(titulo, descripcion, fecha, estado) {
     this.titulo = titulo;
