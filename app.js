@@ -9,6 +9,8 @@ textFrame("\nAplicación de Tareas - JS CLI\n");
 consoleArgs.splice(0, 2);   //Elimino primeros 2 elementos del array
 switchParametros(consoleArgs); //Llamo al selector de opciones
 
+//--------------------------------------------------------//
+
 //Selección en base a opción ingresada
 function switchParametros(parametros) {
     let opcion = parametros.shift();   //La opción debe estar en el primer elemento
@@ -127,7 +129,7 @@ function cambiarURL(args) {
     //Verifico si la direccion es valida
     let direccion = args[0];
     if (direccion[0] == "." && direccion[1] == "/") {
-        archivoURL = newURL;
+        archivoURL = direccion;
     }
     else {
         textFrame("\nVerifique la direccion ingresada...\n");
@@ -157,7 +159,13 @@ function Tarea(titulo, descripcion, fecha, estado) {
 
 //Trae tareas del archivo y retorna un array
 function getTareas(fileURL) {
-    let arrayTareas = fs.readFileSync(fileURL, "utf-8");
+    try {
+        let arrayTareas = fs.readFileSync(fileURL, "utf-8");
+    }
+    catch (error) {
+        textFrame("\nNo existe el archivo: " + error.path + "\nVerifique la direccion ingresada.\n");
+        return [];
+    }
     if (arrayTareas === "") {
         return [];
     }
