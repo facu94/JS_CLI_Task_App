@@ -38,6 +38,29 @@ switch (opcion) {
         break;
 }
 
+function textFrame(stringArray) {
+    console.log("-".repeat(30));
+
+    for (let line in stringArray) {
+        console.log(line);
+    }
+
+    console.log("-".repeat(30));
+}
+
+function crearTarea(args) {
+    if (args.length != 2) {
+        let text = [];
+        text.push("ERROR");
+        text.push("Se esperan solo un TÍTULO y una DESCRIPCIÓN de la nueva tarea.");
+        textFrame(text);
+        mostrarAyuda("-c");
+    }
+
+
+
+}
+
 function Tarea(titulo, descripcion, fecha, estado) {
     this.titulo = titulo;
     this.descripcion = descripcion;
@@ -92,4 +115,4 @@ function listarTodas(fileURL, estado=null) {
     }
 }
 
-listarTodas("./tareas.json",);
+listarTodas(archivoURL);
