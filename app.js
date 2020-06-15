@@ -36,6 +36,7 @@ function switchParametros(parametros) {
             break;
         case "-h":
             mostrarAyuda();
+            break;
         case "-a":
             acercaDe();
             break;
@@ -138,6 +139,40 @@ function cambiarPATH(args) {
 
     args.splice(0, 1);
     return switchParametros(args);
+}
+
+function importTarea(args) {
+    let desde = args[0];
+
+    let tareas = getTareas(desde);
+
+    if (tareas.length === 0) {
+        textFrame("\nArchivo vacio\n");
+        return false;
+    }
+
+    tareas.unshift(...getTareas(archivoPATH));
+
+    setTareas(archivoPATH, tareas);
+
+    textFrame("\nLa importación se realizó con éxito\n");
+
+    listarTodas(archivoPATH);
+}
+
+function mostrarAyuda() {
+    textFrame("Ayuda")
+    return;
+}
+
+function acercaDe() {
+    textFrame("Acerc de:")
+    return;
+}
+
+function opcionDesconocida() {
+    textFrame("\nEl parametro ingresado no pudo ser reconocido.\n-h para obtener ayuda.\n");
+    return;
 }
 
 //Constructor de objetos Tarea
