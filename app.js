@@ -1,3 +1,13 @@
+/*
+*   Aplicación de Tareas - CLI JS
+*   Autor: Facundo Erbin
+*   Licencia: MIT
+*   GithubURL: https://github.com/facu94/JS_CLI_Task_App
+*   Versión: 0.1
+*   Curso FullStack NodeJS Atalaya 2020
+*   Digital House
+*/
+
 const fs = require('fs'); //Módulo FileSystem
 const consoleArgs = process.argv; //array con ingreso por consola
 
