@@ -1,7 +1,7 @@
 const fs = require('fs'); //Módulo FileSystem
 const consoleArgs = process.argv; //array con ingreso por consola
 
-let archivoURL = "./tareas.json"; //URL del archivo que persiste tareas
+let archivoPATH = "./tareas.json"; //PATH del archivo que persiste tareas
 
 //Muestro titulo por consola
 textFrame("\nAplicación de Tareas - JS CLI\n");
@@ -23,16 +23,16 @@ function switchParametros(parametros) {
             borrarTarea(parametros);
             break;
         case "-u":
-            cambiarURL(parametros);
+            cambiarPATH(parametros);
             break;
         case "-i":
             importTarea(parametros);
             break;
         case "-l":
-            listarTodas(archivoURL, ...parametros);
+            listarTodas(archivoPATH, ...parametros);
             break;
         case undefined:
-            listarTodas(archivoURL);
+            listarTodas(archivoPATH);
             break;
         case "-h":
             mostrarAyuda();
@@ -79,13 +79,13 @@ function crearTarea(args) {
     const nuevaTarea = new Tarea(args[0], args[1], hoy, "Pendiente");
 
     //Traigo las tareas del archivo
-    let arrayTareas = getTareas(archivoURL);
+    let arrayTareas = getTareas(archivoPATH);
     
     //Agrego la nueva tarea
     arrayTareas.push(nuevaTarea);
 
     //Guardo el Archivo
-    setTareas(archivoURL, arrayTareas);
+    setTareas(archivoPATH, arrayTareas);
 
     //Muestro, operación exitosa
     let lines = [
@@ -99,7 +99,7 @@ function crearTarea(args) {
 //Elimina tareas del archivo por titulo
 function borrarTarea(args) {
     //Traigo tareas del archivo
-    let tareas = getTareas(archivoURL);
+    let tareas = getTareas(archivoPATH);
 
     //Saco el titulo de los argumentos
     let tituloTarea = args[0].toLowerCase();
@@ -122,14 +122,14 @@ function borrarTarea(args) {
     arrayTareas.splice(index, 1);
 
     //Guardo las tareas en el archivo.
-    setTareas(archivoURL, arrayTareas);
+    setTareas(archivoPATH, arrayTareas);
 }
 
-function cambiarURL(args) {
+function cambiarPATH(args) {
     //Verifico si la direccion es valida
     let direccion = args[0];
     if (direccion[0] == "." && direccion[1] == "/") {
-        archivoURL = direccion;
+        archivoPATH = direccion;
     }
     else {
         textFrame("\nVerifique la direccion ingresada...\n");
@@ -158,9 +158,10 @@ function Tarea(titulo, descripcion, fecha, estado) {
 }
 
 //Trae tareas del archivo y retorna un array
-function getTareas(fileURL) {
+function getTareas(filePATH) {
+    let arrayTareas = "";
     try {
-        let arrayTareas = fs.readFileSync(fileURL, "utf-8");
+        arrayTareas = fs.readFileSync(filePATH, "utf-8");
     }
     catch (error) {
         textFrame("\nNo existe el archivo: " + error.path + "\nVerifique la direccion ingresada.\n");
@@ -174,13 +175,13 @@ function getTareas(fileURL) {
 }
 
 //Guarda un array en archivo
-function setTareas(fileURL, arrayTareas) {
-    fs.writeFileSync(fileURL, JSON.stringify(arrayTareas));
+function setTareas(filePATH, arrayTareas) {
+    fs.writeFileSync(filePATH, JSON.stringify(arrayTareas));
 }
 
-function listarTodas(fileURL, filtrarPor = "", filtro = "") {
+function listarTodas(filePATH, filtrarPor = "", filtro = "") {
     //Traigo las tareas del archivo
-    let arrayTareas = getTareas(fileURL);
+    let arrayTareas = getTareas(filePATH);
 
     //Filtrar Tareas
     if (filtrarPor !== "" | filtro !== "") {
