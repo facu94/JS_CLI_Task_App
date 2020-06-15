@@ -3,34 +3,34 @@ const consoleArgs = process.argv;
 
 let archivoURL = "./tareas.json";
 
-console.log("Aplicación de Tareas");
+textFrame("Aplicación de Tareas");
 
 consoleArgs.splice(0, 2);
 let opcion = consoleArgs.shift();
 
 
 switch (opcion) {
-    case /-c|crear/i.test(opcion):      
+    case "-c":      
         crearTarea(consoleArgs);
         break;
-    case /-d|eliminar/i.test(opcion):
+    case "-d":
         borrarTarea(consoleArgs);
         break;
-    case /-u|cambiarURL/i.test(opcion):
+    case "-u":
         cambiarURL(consoleArgs);
         break;
-    case /-i|import/i.test(opcion):
+    case "-i":
         importTarea(consoleArgs);
         break;
-    case /-l|listar/i.test(opcion):
-        listarTodas(archivoURL, opcion);
+    case "-l":
+        listarTodas(archivoURL, ...consoleArgs);
         break;
     case undefined:
         listarTodas(archivoURL);
         break;
-    case /-h|help/i.test(opcion):
+    case "-h":
         mostrarAyuda();
-    case /-a|about/i.test(opcion):
+    case "-a":
         acercaDe();
         break;
     default:
@@ -41,26 +41,34 @@ switch (opcion) {
 function textFrame(stringArray) {
     console.log("-".repeat(30));
 
-    for (let line in stringArray) {
-        console.log(line);
+    if (typeof (stringArray) != "string") {
+        for (let line of stringArray) {
+            console.log(line);
+        }
+    }
+    else {
+        console.log(stringArray);
     }
 
     console.log("-".repeat(30));
 }
 
+//Crea tarea nueva y la guarda en el archivo
 function crearTarea(args) {
     //Compruebo que la cantidad de argumentos sea correcta
     //Muestro error para corregir la entrada
     if (args.length != 2) {
-        let text = [];
+        const text = [];
         text.push("ERROR");
         text.push("Se esperan solo un TÍTULO y una DESCRIPCIÓN de la nueva tarea.");
         textFrame(text);
         mostrarAyuda("-c");
+        return false;
     }
 
     //Creo la tarea nueva; Estado Pendiente, fecha Hoy
-    let nuevaTarea = Tarea(args[0], args[1], undefined, "Pendiente");
+    const hoy = new Date();
+    const nuevaTarea = new Tarea(args[0], args[1], hoy, "Pendiente");
 
     //Traigo las tareas del archivo
     let arrayTareas = getTareas(archivoURL);
@@ -74,9 +82,9 @@ function crearTarea(args) {
     //Muestro, operación exitosa
     let lines = [
         "OPERACIÓN EXITOSA",
-        "Su tarea se creó con éxito.",
-        ...nuevaTarea.mostrar
+        "Su tarea se creó con éxito."
     ];
+    lines.push(...nuevaTarea.mostrar())
     textFrame(lines);
 }
 
@@ -85,64 +93,64 @@ function Tarea(titulo, descripcion, fecha, estado) {
     this.descripcion = descripcion;
     this.fecha = (typeof(fecha) == "undefined") ? new Date() : new Date(fecha);
     this.estado = estado;
-    this.mostrar = [
-        "Título: " + this.titulo,
-        "Descripción: " + this.descripcion,
-        "Fecha: " + this.fecha,
-        "Estado: " + this.estado
-    ];
+    //String Array para mostrar tarea
+    this.mostrar = function () {
+        return [
+            "Título: " + this.titulo,
+            "Descripción: " + this.descripcion,
+            "Fecha: " + this.fecha,
+            "Estado: " + this.estado
+        ];
+    }
 }
 
-const arrayTareas = [];
-let hoy = new Date();
-let t1 = [
-    "Practicar el Switch",
-    "Entender como funciona",
-    ,
-    "Terminado"
-];
-
-let t2 = [
-    "Practicar el For",
-    "Entender como hacerlo",
-    hoy,
-    "Pendiente"
-];
-
-let t3 = [
-    "Practicar el While",
-    "Entender como funciona",
-    "1984-10-10",
-    "Pendiente"
-];
-arrayTareas.push(new Tarea(...t1));
-arrayTareas.push(new Tarea(...t2));
-arrayTareas.push(new Tarea(...t3));
-
-
+//Trae tareas del archivo y retorna un array
 function getTareas(fileURL) {
     let arrayTareas = fs.readFileSync(fileURL, "utf-8");
+    if (arrayTareas === "") {
+        return [];
+    }
     arrayTareas = JSON.parse(arrayTareas);
     return arrayTareas;
 }
 
+//Guarda un array en archivo
 function setTareas(fileURL, arrayTareas) {
-    fs.writeFileSync("./tareas.json", JSON.stringify(tarea));
+    fs.writeFileSync(fileURL, JSON.stringify(arrayTareas));
 }
 
-function listarTodas(fileURL, estado = null) {
+function listarTodas(fileURL, filtrarPor = "", filtro = "") {
     //Traigo las tareas del archivo
     let arrayTareas = getTareas(fileURL);
 
-    //Itero y muestro las tareas según estado o todas
-    for (let arg of arrayTareas) {
-        if (estado === null || arg.estado === estado) {
-            console.log("-------------------------");
-            for (let tarea in arg) {
-                console.log(tarea, arg[tarea]);
-            }
-        }
+    //Filtrar Tareas
+    if (filtrarPor !== "" | filtro !== "") {
+        arrayTareas = filtrarTareas(arrayTareas, filtrarPor, filtro);
     }
+
+    for (let tarea of arrayTareas) {
+        let thisTarea = new Tarea(tarea.titulo, tarea.descripcion, tarea.fecha, tarea.estado);
+        textFrame(thisTarea.mostrar());
+    }
+    //Itero y muestro las tareas según estado o todas
+    // for (let arg of arrayTareas) {
+    //     if (estado === null || arg.estado === estado) {
+    //         console.log("-------------------------");
+    //         for (let tarea in arg) {
+    //             console.log(tarea, arg[tarea]);
+    //         }
+    //     }
+    // }
 }
 
-listarTodas(archivoURL);
+//Filtra las tareas de un array segun parametros
+function filtrarTareas(arrayTareas, filtrarPor, filtro) {
+    return arrayTareas.filter((element) => {
+        let argumento = element[filtrarPor.toLowerCase()];
+        let regExp = new RegExp(filtro.toLowerCase(), "i");
+        return regExp.test(argumento);
+    }
+    );
+}
+
+// listarTodas(archivoURL, "estado", "Pendiente");
