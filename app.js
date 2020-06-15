@@ -7,36 +7,40 @@ let archivoURL = "./tareas.json"; //URL del archivo que persiste tareas
 textFrame("\nAplicación de Tareas - JS CLI\n");
 
 consoleArgs.splice(0, 2);   //Elimino primeros 2 elementos del array
-let opcion = consoleArgs.shift();   //La opción debe estar en el primer elemento
+switchParametros(consoleArgs); //Llamo al selector de opciones
 
 //Selección en base a opción ingresada
-switch (opcion) {
-    case "-c":      
-        crearTarea(consoleArgs);
-        break;
-    case "-d":
-        borrarTarea(consoleArgs);
-        break;
-    case "-u":
-        cambiarURL(consoleArgs);
-        break;
-    case "-i":
-        importTarea(consoleArgs);
-        break;
-    case "-l":
-        listarTodas(archivoURL, ...consoleArgs);
-        break;
-    case undefined:
-        listarTodas(archivoURL);
-        break;
-    case "-h":
-        mostrarAyuda();
-    case "-a":
-        acercaDe();
-        break;
-    default:
-        opcionDesconocida();
-        break;
+function switchParametros(parametros) {
+    let opcion = parametros.shift();   //La opción debe estar en el primer elemento
+    
+    switch (opcion) {
+        case "-c":
+            crearTarea(parametros);
+            break;
+        case "-d":
+            borrarTarea(parametros);
+            break;
+        case "-u":
+            cambiarURL(parametros);
+            break;
+        case "-i":
+            importTarea(parametros);
+            break;
+        case "-l":
+            listarTodas(archivoURL, ...parametros);
+            break;
+        case undefined:
+            listarTodas(archivoURL);
+            break;
+        case "-h":
+            mostrarAyuda();
+        case "-a":
+            acercaDe();
+            break;
+        default:
+            opcionDesconocida();
+            break;
+    }
 }
 
 //función para salida por consola
@@ -99,9 +103,18 @@ function borrarTarea(args) {
     let tituloTarea = args[0].toLowerCase();
 
     //Buscar tarea a eliminar
-    let arrayTareas = [... tareas];
-    let tareaFiltrada = filtrarTareas(arrayTareas, "Tareas", tituloTarea);
+    let arrayTareas = [...tareas];
+    let tareaFiltrada = filtrarTareas(arrayTareas, "Titulo", tituloTarea);
+    tareaFiltrada = tareaFiltrada[0];
+    if (tareaFiltrada === undefined) {
+        textFrame("\nNo se encontro la tareas " + args.toString() + "\n")
+        return false;
+    }
     
+    //Mostrar Tarea a eliminar
+    let thisTarea = new Tarea(tareaFiltrada.titulo, tareaFiltrada.descripcion, tareaFiltrada.fecha, tareaFiltrada.estado);
+    textFrame("Se elimino la tarea:");
+    textFrame(thisTarea.mostrar());
     //Eliminar Tarea
     let index = arrayTareas.indexOf(tareaFiltrada);
     arrayTareas.splice(index, 1);
@@ -109,6 +122,22 @@ function borrarTarea(args) {
     //Guardo las tareas en el archivo.
     setTareas(archivoURL, arrayTareas);
 }
+
+function cambiarURL(args) {
+    //Verifico si la direccion es valida
+    let direccion = args[0];
+    if (direccion[0] == "." && direccion[1] == "/") {
+        archivoURL = newURL;
+    }
+    else {
+        textFrame("\nVerifique la direccion ingresada...\n");
+        return false;
+    }
+
+    args.splice(0, 1);
+    return switchParametros(args);
+}
+
 //Constructor de objetos Tarea
 function Tarea(titulo, descripcion, fecha, estado) {
     this.titulo = titulo;
