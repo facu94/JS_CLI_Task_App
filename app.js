@@ -49,6 +49,8 @@ function textFrame(stringArray) {
 }
 
 function crearTarea(args) {
+    //Compruebo que la cantidad de argumentos sea correcta
+    //Muestro error para corregir la entrada
     if (args.length != 2) {
         let text = [];
         text.push("ERROR");
@@ -57,8 +59,25 @@ function crearTarea(args) {
         mostrarAyuda("-c");
     }
 
+    //Creo la tarea nueva; Estado Pendiente, fecha Hoy
+    let nuevaTarea = Tarea(args[0], args[1], undefined, "Pendiente");
 
+    //Traigo las tareas del archivo
+    let arrayTareas = getTareas(archivoURL);
+    
+    //Agrego la nueva tarea
+    arrayTareas.push(nuevaTarea);
 
+    //Guardo el Archivo
+    setTareas(archivoURL, arrayTareas);
+
+    //Muestro, operación exitosa
+    let lines = [
+        "OPERACIÓN EXITOSA",
+        "Su tarea se creó con éxito.",
+        ...nuevaTarea.mostrar
+    ];
+    textFrame(lines);
 }
 
 function Tarea(titulo, descripcion, fecha, estado) {
@@ -66,6 +85,12 @@ function Tarea(titulo, descripcion, fecha, estado) {
     this.descripcion = descripcion;
     this.fecha = (typeof(fecha) == "undefined") ? new Date() : new Date(fecha);
     this.estado = estado;
+    this.mostrar = [
+        "Título: " + this.titulo,
+        "Descripción: " + this.descripcion,
+        "Fecha: " + this.fecha,
+        "Estado: " + this.estado
+    ];
 }
 
 const arrayTareas = [];
@@ -94,17 +119,22 @@ arrayTareas.push(new Tarea(...t1));
 arrayTareas.push(new Tarea(...t2));
 arrayTareas.push(new Tarea(...t3));
 
-/*
-for (let tarea of arrayTareas) {
-    fs.writeFileSync("./tareas.json", JSON.stringify(tarea));
-}
-*/
 
-
-function listarTodas(fileURL, estado=null) {
+function getTareas(fileURL) {
     let arrayTareas = fs.readFileSync(fileURL, "utf-8");
     arrayTareas = JSON.parse(arrayTareas);
+    return arrayTareas;
+}
 
+function setTareas(fileURL, arrayTareas) {
+    fs.writeFileSync("./tareas.json", JSON.stringify(tarea));
+}
+
+function listarTodas(fileURL, estado = null) {
+    //Traigo las tareas del archivo
+    let arrayTareas = getTareas(fileURL);
+
+    //Itero y muestro las tareas según estado o todas
     for (let arg of arrayTareas) {
         if (estado === null || arg.estado === estado) {
             console.log("-------------------------");
