@@ -1,14 +1,15 @@
-const fs = require('fs');
-const consoleArgs = process.argv;
+const fs = require('fs'); //Módulo FileSystem
+const consoleArgs = process.argv; //array con ingreso por consola
 
-let archivoURL = "./tareas.json";
+let archivoURL = "./tareas.json"; //URL del archivo que persiste tareas
 
-textFrame("Aplicación de Tareas");
+//Muestro titulo por consola
+textFrame("\nAplicación de Tareas - JS CLI\n");
 
-consoleArgs.splice(0, 2);
-let opcion = consoleArgs.shift();
+consoleArgs.splice(0, 2);   //Elimino primeros 2 elementos del array
+let opcion = consoleArgs.shift();   //La opción debe estar en el primer elemento
 
-
+//Selección en base a opción ingresada
 switch (opcion) {
     case "-c":      
         crearTarea(consoleArgs);
@@ -38,6 +39,7 @@ switch (opcion) {
         break;
 }
 
+//función para salida por consola
 function textFrame(stringArray) {
     console.log("-".repeat(30));
 
@@ -88,6 +90,26 @@ function crearTarea(args) {
     textFrame(lines);
 }
 
+//Elimina tareas del archivo por titulo
+function borrarTarea(args) {
+    //Traigo tareas del archivo
+    let tareas = getTareas(archivoURL);
+
+    //Saco el titulo de los argumentos
+    let tituloTarea = args[0].toLowerCase();
+
+    //Buscar tarea a eliminar
+    let arrayTareas = [... tareas];
+    let tareaFiltrada = filtrarTareas(arrayTareas, "Tareas", tituloTarea);
+    
+    //Eliminar Tarea
+    let index = arrayTareas.indexOf(tareaFiltrada);
+    arrayTareas.splice(index, 1);
+
+    //Guardo las tareas en el archivo.
+    setTareas(archivoURL, arrayTareas);
+}
+//Constructor de objetos Tarea
 function Tarea(titulo, descripcion, fecha, estado) {
     this.titulo = titulo;
     this.descripcion = descripcion;
@@ -128,19 +150,18 @@ function listarTodas(fileURL, filtrarPor = "", filtro = "") {
         arrayTareas = filtrarTareas(arrayTareas, filtrarPor, filtro);
     }
 
+    //Si no hay tareas que mostrar...
+    if (arrayTareas.length === 0) {
+        textFrame("\nNo hay tareas...\n");
+        return false;
+    }
+
+    //Muestro tareas
     for (let tarea of arrayTareas) {
         let thisTarea = new Tarea(tarea.titulo, tarea.descripcion, tarea.fecha, tarea.estado);
         textFrame(thisTarea.mostrar());
     }
-    //Itero y muestro las tareas según estado o todas
-    // for (let arg of arrayTareas) {
-    //     if (estado === null || arg.estado === estado) {
-    //         console.log("-------------------------");
-    //         for (let tarea in arg) {
-    //             console.log(tarea, arg[tarea]);
-    //         }
-    //     }
-    // }
+    return true;
 }
 
 //Filtra las tareas de un array segun parametros
@@ -152,5 +173,3 @@ function filtrarTareas(arrayTareas, filtrarPor, filtro) {
     }
     );
 }
-
-// listarTodas(archivoURL, "estado", "Pendiente");
